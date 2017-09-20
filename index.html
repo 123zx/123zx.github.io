@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="html2canvas.min.js"></script>
+    <script src="jquery-1.12.2.js"></script>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            list-style: none;
+        }
+
+         ul{
+            width:120px;
+            height:30px;
+        }
+         ul li{
+            width:30px;
+            height:100%;
+            background:#f00;
+            float:left;
+        }
+        ul li:nth-child(2){
+            background:#ff0;
+        }
+         ul li:nth-child(3){
+            background:#00f;
+        }
+         ul li:nth-child(4){
+            background:#0ff;
+        }
+         table{
+            width:800px;
+            /*height:100%;*/
+            border:1px solid #000000;
+             background:#fff;
+            /*margin-top:20px;*/
+        }
+         table tr{
+            border:1px solid #000000;
+            height:20px;
+        }
+         table td{
+            /*padding:20px 0;*/
+            border:1px solid #000000;
+        }
+         table .canvas{
+            border:1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+<!--<div class="box" id="box">-->
+
+    <!--<h1>WebSign-HTML电子签名演示程序</h1>-->
+
+    <table cellspacing="0" cellpadding="0" id="tab">
+        <tr>
+            <td>来文单位</td>
+            <td><input type="text" value="办公厅"/></td>
+            <td>来文日期</td>
+            <td><input type="text" value="测试签名"/></td>
+        </tr>
+
+        <tr>
+            <td>事由</td>
+            <td><input type="text" value="2008-01-10"/></td>
+            <td>时间要求</td>
+            <td><input type="text" value="30天"/></td>
+        </tr>
+
+        <tr class="tr">
+            <td><p>拟办意见</p><button id="btn">盖章</button><button>手写</button></td>
+            <td colspan="3" class="td">
+                <p>意见</p>
+                <canvas class="canvas" id="myCanvas" width="500" height="300"></canvas></td>
+        </tr>
+
+        <tr>
+            <td><p>主办意见</p><button>盖章</button><button>手写</button></td>
+            <td colspan="3">
+                <p>意见</p>
+                <canvas class="canvas"></canvas></td>
+        </tr>
+
+        <tr>
+            <td><p>领导意见</p><button>盖章</button><button>手写</button></td>
+            <td colspan="3">
+                <p>意见</p>
+                <canvas class="canvas"></canvas></td>
+        </tr>
+    </table>
+<button id="save">保存</button>
+
+
+<!--</div>-->
+</body>
+<script>
+
+
+
+        var cas=document.getElementById("myCanvas");
+        var box=document.getElementById("box");
+        var tab=document.getElementById("tab");
+        var ctx=cas.getContext("2d");
+        var td=document.querySelector(".td") ;
+//        console.log(td);
+//        console.log(td);
+//        var tr=document.querySelector(".tr");
+//        var box=document.querySelector(".box");
+//        var table=document.querySelector("table");
+        td.onmousedown=function(ce){
+
+            ctx.beginPath();
+//            console.log(ce.clientX - td.offsetLeft - table.offsetLeft);
+//            console.log(td.offsetLeft);
+            ctx.moveTo(ce.clientX-td.offsetLeft-cas.offsetLeft,ce.clientY-cas.offsetTop-td.offsetTop);
+//            console.log(ce.clientX-td.offsetLeft-tab.offsetLeft,ce.clientY-cas.offsetTop-td.offsetTop-tab.offsetTop);
+            td.onmousemove=function(e){
+
+                var x= e.clientX-td.offsetLeft-cas.offsetLeft;
+                var y=e.clientY-cas.offsetTop-td.offsetTop;
+                console.log(x,y);
+                ctx.lineTo(x,y);
+                ctx.stroke();
+            }
+        }
+        td.onmouseup=function(){
+            td.onmousemove=null;
+        }
+
+        var btn=document.getElementById("btn");
+        btn.onclick = function () {
+            td.style.position = "relative";
+            var img = new Image();
+            img.src = "3_140807150352_4.jpg";
+            img.style.position="absolute";
+            img.style.left = "0px";
+            img.style.top = "0px";
+            img.style.border = "2px dashed #000";
+            img.style.cursor = "move";
+            img.onload = function () {
+//            ctx.drawImage(img,0,0);
+//            ctx.translate(200,200);
+                td.appendChild(img);
+                img.onmousedown = function (me) {
+                    me.stopPropagation();
+                    img.onmousemove = function (e) {
+                        e.stopPropagation();
+                        var x = e.pageX - td.offsetLeft-img.offsetWidth/2;
+                        var y = e.pageY - td.offsetTop-img.offsetHeight/2;
+                        img.style.left = x+"px";
+                        img.style.top = y+"px";
+                    }
+                }
+
+                img.onmouseup = function (e) {
+                    e.stopPropagation();
+                    img.onmousemove = null;
+                }
+
+                img.ondblclick = function () {
+                    img.style.border = "none";
+                    img.style.cursor = "";
+                    ctx.drawImage(img,img.offsetLeft,img.offsetTop);
+                    td.removeChild(img);
+                }
+            }
+        }
+
+
+        $(function () {
+            $("#save").click(function () {
+                html2canvas($("table")[0],{
+                    onrendered: function (canvas) {
+                        var image = canvas.toDataURL("image/png");
+                        //将图片下载到本地即可
+                        saveFile(image,"myPic.jpg");
+                    }
+                })
+            });
+        });
+
+        var saveFile = function (saveData, filename) {
+            var link = document.createElement('a');0
+            link.href = saveData;
+            link.download = filename;
+            var event = document.createEvent('MouseEvents');
+            event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+            link.dispatchEvent(event);
+        }
+
+
+
+
+
+
+</script>
+</html>
